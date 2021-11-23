@@ -31,9 +31,9 @@ function getCity () {
 
 // ============ CURRENT WEATHER =====================
 
-function getCurrentWeather (weather) {
+function getCurrentWeather (current) {
 
-  fetch (`https://api.openweathermap.org/data/2.5/weather?q=${weather}&appid=${apiKey}&units=imperial`)
+  fetch (`https://api.openweathermap.org/data/2.5/weather?q=${current}&appid=${apiKey}&units=imperial`)
   .then (function (response) {
     return response.json();
   })
