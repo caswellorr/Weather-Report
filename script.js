@@ -1,12 +1,6 @@
-// When i search a city in the search bar, the current weather should appear in the JUMBOTRON and the 5 day forecast to appear in the cards - one day per card
-
-// The information in the cards should include: the date, an icon representation of weather conditions, the temperature, the wind speed, and the humidity
-
-// the jumbotron should include: the city name, the date, an icon representation of weather conditions, the temperature, the humidity, the wind speed, and the UV index
+// Q's for Dane: how to display a day  per card? UV index? why does it keep appending per search?
 
 // the UV index should present a color that indicates whether the conditions are favorable, moderate, or severe
-
-// How difficult would it be to display a photo (or more simply a color) in the header that matches the day or weather
 
 // 3 fetch urls - current, forecast, UV Index
 
@@ -16,24 +10,46 @@ let apiKey = "081f0c01ecb95def63580bda10ad1a00";
 
 // ============== SEARCH BAR AND BUTTON =================
 
-searchBtn.addEventListener('click', getCity);
+searchBtn.addEventListener('click', getCityWeather);
 
-function getCity () {
+function getCityWeather () {
 
   let city = document.getElementById('search-input').value;
     console.log(city);
+  
+  getLatLon (city);
 
-  getCurrentWeather (city);
+  // getCurrentWeather (city);
 
-  getFiveDayForecast (city);
+  // getFiveDayForecast (latLon);
+
 
 }
 
+function getLatLon (coordinates) {
+
+  fetch (`https://api.openweathermap.org/data/2.5/weather?q=${coordinates}&appid=${apiKey}&units=imperial`)
+  .then (function (response) {
+    return response.json();
+  })
+  .then (function(coordinates) {
+    // console.log(coordinates);
+
+    let latLon = [coordinates.coord.lat, coordinates.coord.lon]
+    
+    getCurrentWeather (latLon);
+
+    getFiveDayForecast (latLon);
+  
+
+  })
+};
+
 // ============ CURRENT WEATHER =====================
 
-function getCurrentWeather (current) {
+function getCurrentWeather (latLon) {
 
-  fetch (`https://api.openweathermap.org/data/2.5/weather?q=${current}&appid=${apiKey}&units=imperial`)
+  fetch (`https://api.openweathermap.org/data/2.5/onecall?lat=${latLon[0]}&lon=${latLon[1]}&exclude={part}&appid=${apiKey}&units=imperial`)
   .then (function (response) {
     return response.json();
   })
@@ -42,7 +58,7 @@ function getCurrentWeather (current) {
 
     const currentWeather = document.getElementById('current-weather');
 
-      // City Name, Date, Weather Icon
+      // Format: City Name, Date, Weather Icon(??)
     let cityName = document.createElement('h1');
     cityName.textContent = weather.name;
 
@@ -50,35 +66,48 @@ function getCurrentWeather (current) {
 
       // Temperature
     let temperature = document.createElement('p');
-    temperature.textContent = 'Temp: ' + Math.floor(weather.main.temp) + ' °F';
+    temperature.textContent = 'Temp: ' + Math.floor(weather.current.temp) + ' °F';
 
     currentWeather.append(temperature);
 
       // Humidity
     let humidity = document.createElement('p');
-    humidity.textContent = 'Humidity: ' + Math.floor(weather.main.humidity) + '%';
+    humidity.textContent = 'Humidity: ' + Math.floor(weather.current.humidity) + '%';
 
     currentWeather.append(humidity);
 
       // Wind Speed
     let windSpeed = document.createElement('p');
-    windSpeed.textContent = 'Wind: ' + Math.floor(weather.wind.speed) + ' Mph';
+    windSpeed.textContent = 'Wind: ' + Math.floor(weather.current.weather.wind_speed) + ' Mph';
 
     currentWeather.append(windSpeed);
 
-    // UV index function
+    getUvIndex()
     
   })
 }
 
-// function getUvIndex (uv)
+// ================== UV Index ==================
+
+      // the UV index should present a color that indicates whether the conditions are favorable, moderate, or severe
+
+function getUvIndex (uv) {
+
+  fetch (`https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&exclude={part}&appid=${apiKey}&units=imperial`)
+  .then (function (response){
+    return response.json();
+  })
+  .then (function (uvIndex) {
+    console.log(uvIndex);
+  })
+}
 
 // ================= FIVE DAY FORECAST ==================
 
 
-function getFiveDayForecast (forecast) {
+function getFiveDayForecast (latLon) {
 
-  fetch (`https://api.openweathermap.org/data/2.5/forecast?q=${forecast}&appid=${apiKey}&units=imperial`)
+  fetch (`https://api.openweathermap.org/data/2.5/onecall?lat=${latLon[0]}&lon=${latLon[1]}&exclude={part}&appid=${apiKey}&units=imperial`)
   .then(function (response){
     return response.json();
   })
@@ -87,6 +116,7 @@ function getFiveDayForecast (forecast) {
 
     const fiveDayForecast = document.getElementById('five-day-container');
 
+        // need every 24 hours for the forecast**
     for (let i = 0; i < 5; i++) {
       console.log(weather.list[i]);
       
@@ -97,7 +127,7 @@ function getFiveDayForecast (forecast) {
 
       fiveDayForecast.prepend(fiveDayDate);
       
-      // Weather Icon - conditional??
+      // Weather Icon ??
 
         // Temperature
       let fiveDayTemp = document.createElement('p');
@@ -120,13 +150,12 @@ function getFiveDayForecast (forecast) {
 
       fiveDayForecast.append(fiveDayHumidity);
 
-      
-      
+
 
     }
   })
    
 }
 
-
+// localStorage?
 
