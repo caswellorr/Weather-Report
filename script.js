@@ -1,8 +1,4 @@
-// Q's for Dane: how to display a day  per card? UV index? why does it keep appending per search?
-
-// the UV index should present a color that indicates whether the conditions are favorable, moderate, or severe
-
-// 3 fetch urls - current, forecast, UV Index
+// ======= Global Variables ==========
 
 let searchBtn = document.getElementById('search-button');
 
@@ -17,12 +13,11 @@ const fiveDayContainer = document.getElementById('five-day-container')
 searchBtn.addEventListener('click', getCityWeather);
 
 function getCityWeather() {
+
   currentWeather.textContent = ''
   fiveDayContainer.textContent = ''
   let city = document.getElementById('search-input').value;
   console.log(city);
-
-  // getLatLon (city);
 
   getCurrentWeather(city);
 
@@ -30,6 +25,8 @@ function getCityWeather() {
 
 
 }
+
+// ========= SEARCH HISTORY: LOCAL STORAGE =============
 
 function searchHistory(city){
 
@@ -62,14 +59,16 @@ function getSearchHistory() {
       history.append(historyBtn)
 
       historyBtn.addEventListener('click', function(event) {
-        history.textContent = ''
         fiveDayContainer.textContent = ''
         currentWeather.textContent = ''
         getCurrentWeather(event.target.id)
+
       })
     }
   }
 }
+
+// ============= UV INDEX ===============
 
 function getUvIndex(lat, lon) {
 
@@ -82,8 +81,17 @@ function getUvIndex(lat, lon) {
       
       console.log(data);
       var uv = document.createElement('p')
-      uv.textContent = data.current.uvi
+      uv.textContent = data.current.uvi;
       currentWeather.append(uv)
+
+      if(data.current.uvi <= 3){
+        uv.style.backgroundColor= 'green';
+      } else if (data.current.uv > 3 && data.current.uv < 7) {
+        uv.style.backgroundColor= 'orange';
+    
+      } else {
+        uv.style.backgroundColor= 'red';
+      }
     })
 };
 
@@ -103,11 +111,20 @@ function getCurrentWeather(city) {
       getUvIndex(lat, lon)
       getFiveDayForecast(lat, lon)
 
-      // Format: City Name, Date, Weather Icon(??)
+      // City Name + Date
       let cityName = document.createElement('h1');
-      cityName.textContent = weather.name;
+      let currentDate = moment().format('MMMM Do YYYY');
+      cityName.textContent = weather.name + " " + currentDate;
 
       currentWeather.prepend(cityName);
+      // Weather Icon
+      let weatherIconContainer = document.createElement('div');
+        currentWeather.append(weatherIconContainer);
+        let icon = weather.weather[0].icon;
+        let weatherIcon = document.createElement('img');
+        weatherIcon.setAttribute('src' , `http://openweathermap.org/img/wn/${icon}.png` );
+        weatherIconContainer.appendChild(weatherIcon);
+
 
       // Temperature
       let temperature = document.createElement('p');
@@ -130,26 +147,7 @@ function getCurrentWeather(city) {
     })
 }
 
-// ================== UV Index ==================
-
-// the UV index should present a color that indicates whether the conditions are favorable, moderate, or severe
-
-// function getUvIndex (latLon) {
-
-//   fetch (`https://api.openweathermap.org/data/2.5/onecall?lat=${latLon[0]}&lon=${latLon[1]}&exclude={part}&appid=${apiKey}&units=imperial`)
-//   .then (function (response){
-//     return response.json();
-//   })
-//   .then (function (uvIndex) {
-//     console.log(uvIndex);
-
-//     let uv = document.createElement('p');
-//     uvIndex.textContent = 'UV Index: ' + Math.floor(uvIndex.current.uvi);
-//   })
-// }
-
 // ================= FIVE DAY FORECAST ==================
-
 
 function getFiveDayForecast(lat, lon) {
 
@@ -160,7 +158,6 @@ function getFiveDayForecast(lat, lon) {
     .then(function (weather) {
       console.log(weather);
 
-      // need every 24 hours for the forecast**
       for (let i = 0; i < 5; i++) {
         console.log(weather.daily[i]);
 
@@ -177,7 +174,16 @@ function getFiveDayForecast(lat, lon) {
 
         card.prepend(fiveDayDate);
 
-        // Weather Icon ??
+        // Weather Icon
+        let weatherIconContainer = document.createElement('div');
+        card.append(weatherIconContainer);
+        let weatherIcon = document.createElement('img');
+        let icon = weather.daily[i].weather[0].icon
+        weatherIcon.setAttribute('src' ,`http://openweathermap.org/img/wn/${icon}.png` );
+
+        weatherIconContainer.appendChild(weatherIcon);
+
+        console.log(weatherIcon); 
 
         // Temperature
         let fiveDayTemp = document.createElement('p');
@@ -205,7 +211,5 @@ function getFiveDayForecast(lat, lon) {
       }
     })
 
-}
-
-// localStorage?
+};
 
