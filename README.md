@@ -33,7 +33,7 @@ It uses localStorage to save the search history, and the user can reclick on a p
 
  I learned how to fetch data from an API and display pieces of the data onto a few elements on the web page.
 
- The page could be mopre visually pleasing; however, I am proud of its functionality.
+ The page could be mopre visually pleasing; however, I am pleased with its functionality.
 
 ----
 © 2021 Caswell Orr. Confidential and Proprietary. All Rights Reserved.
